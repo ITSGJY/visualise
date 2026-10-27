@@ -1,23 +1,63 @@
-name: Package ChatGPT Visualise Skill
+name: Package and release ChatGPT Visualise Skill
+
 on:
   push:
     branches: [main]
-    paths:
-      - 'chatgpt-visualise/**'
-      - '.github/workflows/package-chatgpt-visualise.yml'
+    tags:
+      - "chatgpt-v*"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Validate skill and examples
+      - name: Check out sources
+        uses: actions/checkout@v4
+
+      - name: Validate the Skill and demo files
         run: |
           python3 chatgpt-visualise/scripts/lint_visual.py chatgpt-visualise/assets/cache-hit-demo.html chatgpt-visualise/assets/example-dataflow.svg
-          python3 -c 'from pathlib import Path; p=Path("chatgpt-visualise"); assert (p/"SKILL.md").exists(); assert len(list(p.rglob("*.md")))>=10'
-      - name: Package
-        run: zip -qr skill.zip chatgpt-visualise
-      - uses: actions/upload-artifact@v4
+          python3 - <<'PY'
+          from pathlib import Path
+          base = Path("chatgpt-visualise")
+          assert (base / "SKILL.md").read_text(encoding="utf-8").startswith("---\nname: chatgpt-visualise\n")
+          assert (base / "agents/openai.yaml").is_file()
+          assert len([p for p in base.rglob("*") if p.is_file()]) >= 20
+          for filename in ("SKILL.md", "README.md"):
+              assert (base / "references" / ("upstream-" + filename.lower())).is_file()
+          for path in Path("references").glob("*.md"):
+              assert (base / "references" / ("upstream-" + path.name)).read_bytes() == path.read_bytes()
+          assert (base / "references/upstream-skill.md").read_bytes() == Path("SKILL.md").read_bytes()
+          print("All source and Skill checks passed.")
+          PY
+
+      - name: Package ZIP and SHA-256 checksum
+        run: |
+          zip -qr skill.zip chatgpt-visualise
+          unzip -t skill.zip | tail -1
+          sha256sum skill.zip > SHA256SUMS.txt
+          test "$(unzip -Z1 skill.zip | grep -c '^chatgpt-visualise/SKILL.md$')" = 1
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
         with:
           name: chatgpt-visualise-skill
-          path: skill.zip
+          path: |
+            skill.zip
+            SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Publish tagged GitHub Release
+        if: startsWith(github.ref, 'refs/tags/chatgpt-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" skill.zip SHA256SUMS.txt --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" skill.zip SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --title "Visualise for ChatGPT $tag" --notes-file ".github/RELEASE_NOTES.zh-CN.md" --latest
+          fi
