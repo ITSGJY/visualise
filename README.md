@@ -53,3 +53,12 @@ See `references/client-implementation.md` for a full guide on adding renderer su
 ## License
 
 MIT
+
+## ChatGPT edition (unofficial)
+
+This fork keeps the original Visualise skill at the repository root.
+An independent ChatGPT-focused edition is available at
+[chatgpt-visualise/](chatgpt-visualise/) with its own Skill entrypoint, examples,
+original upstream references and a static linter.
+
+Download a packaged Skill from the GitHub Actions build artifact.
