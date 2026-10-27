@@ -49,7 +49,7 @@ git clone https://github.com/bentossell/visualise.git ~/.agents/skills/visualise
 
 ```text
 visualise/
-├── README.md                  # 中文首页（默认显示）
+├── README.md                  # 中文首页
 ├── README.en.md               # English README
 ├── SKILL.md                   # 上游原版 Skill
 ├── references/                # 上游原版参考文档
