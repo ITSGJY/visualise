@@ -59,15 +59,7 @@ visualise/
 │   ├── references/            # 适配指南 + 完整原版参考文档备份
 │   ├── assets/                # 示例 SVG / 交互式 HTML
 │   └── scripts/               # 静态检查脚本
-└── .github/workflows/
-    └── package-chatgpt-visualise.yml
 ```
-
-## 自动打包与版本发布
-
-- 推送到 `main`：GitHub Actions 自动校验并打包，生成可从本次工作流下载的构建产物。
-- 推送形如 `chatgpt-v0.1.0` 的 **Tag**：同样运行验证与打包，成功后自动创建或更新 **GitHub Release**，附带 `skill.zip` 与 `SHA256SUMS.txt`。
-- 从 [Releases](https://github.com/ITSGJY/visualise/releases) 下载的 ZIP 才是面向普通使用者的正式安装包。根目录始终保留上游原版，不会因增强版发版而被覆盖。
 
 ## 致谢与授权
 

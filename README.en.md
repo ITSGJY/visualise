@@ -70,4 +70,4 @@ An independent ChatGPT-focused edition is available at
 [chatgpt-visualise/](chatgpt-visualise/) with its own Skill entrypoint, examples,
 original upstream references and a static linter.
 
-Download a packaged Skill from the GitHub Actions build artifact.
+Download the installable [skill.zip](https://github.com/ITSGJY/visualise/releases/latest/download/skill.zip) from GitHub Releases.
